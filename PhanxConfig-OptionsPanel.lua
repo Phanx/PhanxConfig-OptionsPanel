@@ -26,18 +26,23 @@ end
 
 local function OptionsPanel_OnClose( self )
 	if InCombatLockdown() then return end
+
+	local target = self.parent or self.name
+
 	local i = 1
 	while true do
 		local button = _G[ "InterfaceOptionsFrameAddOnsButton" .. i ]
-		if not button then return end
-		if ( self.parent and button:GetText() == self.parent ) or ( not self.parent and button:GetText() == self.name ) then
-			if not button.toggle then
-				button.toggle = _G[ "InterfaceOptionsFrameAddOnsButton" .. i .. "Toggle" ]
+		if not button then break end
+
+		local element = button.element
+		if element.name == target and element.hasChildren and not element.collapsed then
+			local selection = InterfaceOptionsFrameAddOns.selection
+			if not selection or selection.parent ~= target then
+				_G[ "InterfaceOptionsFrameAddOnsButton" .. i .. "Toggle" ]:Click()
 			end
-			button:Click()
-			button.toggle:Click()
 			return
 		end
+
 		i = i + 1
 	end
 end
