@@ -48,7 +48,7 @@ local function OptionsPanel_OnClose( self )
 end
 
 function lib.CreateOptionsPanel( name, parent, construct, refresh )
-	if type( name ) ~= "string" then return end
+	assert( type( name ) == "string", "PhanxConfig-OptionsPanel: Name is not a string!" )
 	if type( parent ) ~= "string" then parent = nil end
 	if type( construct ) ~= "function" then construct = nil end
 	if type( refresh ) ~= "function" then refresh = nil end
