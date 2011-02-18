@@ -8,7 +8,7 @@
 	its internals may change at any time without notice.
 ----------------------------------------------------------------------]]
 
-local MINOR_VERSION = tonumber( string.match( "$Revision: 61 $", "%d+" ) )
+local MINOR_VERSION = tonumber( string.match( "$Revision: 62 $", "%d+" ) )
 
 local lib, oldminor = LibStub:NewLibrary( "PhanxConfig-OptionsPanel", MINOR_VERSION )
 if not lib then return end
@@ -37,17 +37,19 @@ end
 
 local function OptionsPanel_OnFirstShow( self )
 	if type( self.runOnce ) == "function" then
-		self.runOnce( self )
+		local success, err = pcall( self.runOnce, self )
+		self.runOnce = nil
+		if not success then error( err ) end
 	end
-	if type( self.refresh ) == "function" then
-		self.refresh()
-	end
-	self.runOnce = nil
 
-	self:SetScript( "OnShow", OptionsPanel_OnShow )
+	if type( self.refresh ) == "function" then
+		self.refresh( self )
+	end
+
 	if self:IsShown() then
 		OptionsPanel_OnShow( self )
 	end
+	self:SetScript( "OnShow", OptionsPanel_OnShow )
 end
 
 local function OptionsPanel_OnClose( self )
