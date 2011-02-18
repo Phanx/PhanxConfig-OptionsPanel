@@ -13,7 +13,29 @@ local MINOR_VERSION = tonumber( string.match( "$Revision: 28 $", "%d+" ) )
 local lib, oldminor = LibStub:NewLibrary( "PhanxConfig-OptionsPanel", MINOR_VERSION )
 if not lib then return end
 
-local OptionsPanel_OnShow = function( self )
+local function OptionsPanel_OnShow( self )
+	if InCombatLockdown() then return end
+
+	local target = self.parent or self.name
+
+	local i = 1
+	while true do
+		local button = _G[ "InterfaceOptionsFrameAddOnsButton" .. i ]
+		if not button then break end
+
+		local element = button.element
+		if element.name == target then
+			if element.hasChildren and element.collapsed then
+				_G[ "InterfaceOptionsFrameAddOnsButton" .. i .. "Toggle" ]:Click()
+			end
+			return
+		end
+
+		i = i + 1
+	end
+end
+
+local function OptionsPanel_OnFirstShow( self )
 	if type( self.runOnce ) == "function" then
 		self.runOnce( self )
 	end
@@ -21,7 +43,7 @@ local OptionsPanel_OnShow = function( self )
 		self.refresh()
 	end
 	self.runOnce = nil
-	self:SetScript( "OnShow", nil )
+	self:SetScript( "OnShow", OptionsPanel_OnShow )
 end
 
 local function OptionsPanel_OnClose( self )
@@ -35,10 +57,12 @@ local function OptionsPanel_OnClose( self )
 		if not button then break end
 
 		local element = button.element
-		if element.name == target and element.hasChildren and not element.collapsed then
-			local selection = InterfaceOptionsFrameAddOns.selection
-			if not selection or selection.parent ~= target then
-				_G[ "InterfaceOptionsFrameAddOnsButton" .. i .. "Toggle" ]:Click()
+		if element.name == target then
+			if element.hasChildren and not element.collapsed then
+				local selection = InterfaceOptionsFrameAddOns.selection
+				if not selection or selection.parent ~= target then
+					_G[ "InterfaceOptionsFrameAddOnsButton" .. i .. "Toggle" ]:Click()
+				end
 			end
 			return
 		end
@@ -64,7 +88,7 @@ function lib.CreateOptionsPanel( name, parent, construct, refresh )
 	f.cancel = OptionsPanel_OnClose
 
 	f.runOnce = construct
-	f:SetScript( "OnShow", OptionsPanel_OnShow )
+	f:SetScript( "OnShow", OptionsPanel_OnFirstShow )
 
 	InterfaceOptions_AddCategory( f, parent )
 
