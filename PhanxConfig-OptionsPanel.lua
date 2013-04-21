@@ -8,7 +8,7 @@
 	its internals may change at any time without notice.
 ----------------------------------------------------------------------]]
 
-local MINOR_VERSION = tonumber( string.match( "$Revision: 62 $", "%d+" ) )
+local MINOR_VERSION = tonumber( string.match( "$Revision: 9999 $", "%d+" ) )
 
 local lib, oldminor = LibStub:NewLibrary( "PhanxConfig-OptionsPanel", MINOR_VERSION )
 if not lib then return end
@@ -77,7 +77,7 @@ local function OptionsPanel_OnClose( self )
 	end
 end
 
-local widgetMethods = {
+local widgetTypes = {
 	"Button",
 	"Checkbox",
 	"ColorPicker",
@@ -99,7 +99,7 @@ function lib.CreateOptionsPanel( name, parent, construct, refresh )
 	local f = CreateFrame( "Frame", nil, InterfaceOptionsFramePanelContainer )
 	f:Hide()
 
-	for widget in pairs(widgetMethods) do
+	for _, widget in ipairs(widgetTypes) do
 		local lib = LibStub("PhanxConfig-"..widget, true)
 		if lib then
 			local method = "Create"..widget
