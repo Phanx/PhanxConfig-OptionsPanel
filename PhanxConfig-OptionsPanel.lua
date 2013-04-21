@@ -77,6 +77,19 @@ local function OptionsPanel_OnClose( self )
 	end
 end
 
+local widgetMethods = {
+	"Button",
+	"Checkbox",
+	"ColorPicker",
+	"Dropdown",
+	"EditBox",
+	"Header",
+	"KeyBinding",
+	"Panel",
+	"ScrollingDropdown",
+	"Slider",
+}
+
 function lib.CreateOptionsPanel( name, parent, construct, refresh )
 	assert( type( name ) == "string", "PhanxConfig-OptionsPanel: Name is not a string!" )
 	if type( parent ) ~= "string" then parent = nil end
@@ -85,6 +98,14 @@ function lib.CreateOptionsPanel( name, parent, construct, refresh )
 
 	local f = CreateFrame( "Frame", nil, InterfaceOptionsFramePanelContainer )
 	f:Hide()
+
+	for widget in pairs(widgetMethods) do
+		local lib = LibStub("PhanxConfig-"..widget, true)
+		if lib then
+			local method = "Create"..widget
+			f[method] = lib[method]
+		end
+	end
 
 	f.name = name
 	f.parent = parent
