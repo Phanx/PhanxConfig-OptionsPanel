@@ -8,7 +8,7 @@
 	its internals may change at any time without notice.
 ----------------------------------------------------------------------]]
 
-local MINOR_VERSION = tonumber( string.match( "$Revision: 9999 $", "%d+" ) )
+local MINOR_VERSION = tonumber( string.match( "$Revision$", "%d+" ) )
 
 local lib, oldminor = LibStub:NewLibrary( "PhanxConfig-OptionsPanel", MINOR_VERSION )
 if not lib then return end
