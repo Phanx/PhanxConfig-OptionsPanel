@@ -122,4 +122,4 @@ function lib:New( name, parent, construct, refresh )
 	return f
 end
 
-lib.CreateOptionsPanel = function( ... ) return lib:New( ... ) end
+function lib.CreateOptionsPanel( ... ) return lib:New( ... ) end
