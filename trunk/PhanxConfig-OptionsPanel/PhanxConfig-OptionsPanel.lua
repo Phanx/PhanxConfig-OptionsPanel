@@ -90,7 +90,7 @@ local widgetTypes = {
 	"Slider",
 }
 
-function lib.CreateOptionsPanel( name, parent, construct, refresh )
+function lib.New( self, name, parent, construct, refresh )
 	assert( type( name ) == "string", "PhanxConfig-OptionsPanel: Name is not a string!" )
 	if type( parent ) ~= "string" then parent = nil end
 	if type( construct ) ~= "function" then construct = nil end
@@ -121,3 +121,5 @@ function lib.CreateOptionsPanel( name, parent, construct, refresh )
 
 	return f
 end
+
+lib.CreateOptionsPanel = function( ... ) return lib:New( ... ) end
