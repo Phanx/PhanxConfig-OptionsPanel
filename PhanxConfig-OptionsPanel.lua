@@ -13,6 +13,8 @@ local MINOR_VERSION = tonumber( string.match( "$Revision$", "%d+" ) )
 local lib, oldminor = LibStub:NewLibrary( "PhanxConfig-OptionsPanel", MINOR_VERSION )
 if not lib then return end
 
+lib.objects = lib.objects or {}
+
 local function OptionsPanel_OnShow( self )
 	if InCombatLockdown() then return end
 
@@ -91,35 +93,53 @@ local widgetTypes = {
 }
 
 function lib:New( name, parent, construct, refresh )
-	assert( type( name ) == "string", "PhanxConfig-OptionsPanel: Name is not a string!" )
-	if type( parent ) ~= "string" then parent = nil end
+	local frame
+	if type( name ) == "table" and name.IsObjectType and name:IsObjectType( "Frame" ) then
+		frame = name
+	else
+		assert( type( name ) == "string", "PhanxConfig-OptionsPanel: Name is not a string!" )
+		if type( parent ) ~= "string" then parent = nil end
+		frame = CreateFrame( "Frame", nil, InterfaceOptionsFramePanelContainer )
+		frame.name = name
+		frame.name = parent
+		InterfaceOptions_AddCategory( frame, parent )
+	end
+
 	if type( construct ) ~= "function" then construct = nil end
 	if type( refresh ) ~= "function" then refresh = nil end
 
-	local f = CreateFrame( "Frame", nil, InterfaceOptionsFramePanelContainer )
-	f:Hide()
-
-	for _, widget in ipairs(widgetTypes) do
-		local lib = LibStub("PhanxConfig-"..widget, true)
+	for _, widget in pairs( widgetTypes ) do
+		local lib = LibStub( "PhanxConfig-"..widget, true )
 		if lib then
 			local method = "Create"..widget
-			f[method] = lib[method]
+			frame[method] = lib[method]
 		end
 	end
 
-	f.name = name
-	f.parent = parent
-	f.refresh = refresh
+	frame.refresh = refresh
+	frame.okay = OptionsPanel_OnClose
+	frame.cancel = OptionsPanel_OnClose
 
-	f.okay = OptionsPanel_OnClose
-	f.cancel = OptionsPanel_OnClose
+	frame.runOnce = construct
 
-	f.runOnce = construct
-	f:SetScript( "OnShow", OptionsPanel_OnFirstShow )
+	local shown = frame:IsVisible()
+	frame:Hide()
+	frame:SetScript( "OnShow", OptionsPanel_OnFirstShow )
+	if shown then
+		frame:Show()
+	end
 
-	InterfaceOptions_AddCategory( f, parent )
+	tinsert( self.objects, frame )
+	return frame
+end
 
-	return f
+function lib:GetOptionsPanel( name, parent )
+	local panels = self.objects
+	for i = 1, #panels do
+		if panels[i].name == name and panels[i].parent = parent then
+			return panels[i]
+		end
+	end
 end
 
 function lib.CreateOptionsPanel( ... ) return lib:New( ... ) end
