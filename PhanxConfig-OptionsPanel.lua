@@ -17,22 +17,17 @@ lib.objects = lib.objects or {}
 
 local function OptionsPanel_OnShow(self)
 	if InCombatLockdown() then return end
-
-	local target = self.parent or self.name
-
-	local i = 1
+	local i, target = 1, self.parent or self.name
 	while true do
-		local button = _G[ "InterfaceOptionsFrameAddOnsButton" .. i ]
+		local button = _G["InterfaceOptionsFrameAddOnsButton"..i]
 		if not button then break end
-
 		local element = button.element
 		if element.name == target then
 			if element.hasChildren and element.collapsed then
-				_G[ "InterfaceOptionsFrameAddOnsButton" .. i .. "Toggle" ]:Click()
+				_G["InterfaceOptionsFrameAddOnsButton"..i.."Toggle"]:Click()
 			end
 			return
 		end
-
 		i = i + 1
 	end
 end
@@ -56,25 +51,20 @@ end
 
 local function OptionsPanel_OnClose(self)
 	if InCombatLockdown() then return end
-
-	local target = self.parent or self.name
-
-	local i = 1
+	local i, target = 1, self.parent or self.name
 	while true do
-		local button = _G[ "InterfaceOptionsFrameAddOnsButton" .. i ]
+		local button = _G["InterfaceOptionsFrameAddOnsButton"..i]
 		if not button then break end
-
 		local element = button.element
 		if element.name == target then
 			if element.hasChildren and not element.collapsed then
 				local selection = InterfaceOptionsFrameAddOns.selection
 				if not selection or selection.parent ~= target then
-					_G[ "InterfaceOptionsFrameAddOnsButton" .. i .. "Toggle" ]:Click()
+					_G["InterfaceOptionsFrameAddOnsButton"..i.."Toggle"]:Click()
 				end
 			end
 			return
 		end
-
 		i = i + 1
 	end
 end
