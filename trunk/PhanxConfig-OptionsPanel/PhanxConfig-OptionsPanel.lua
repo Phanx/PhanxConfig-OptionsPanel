@@ -8,14 +8,14 @@
 	its internals may change at any time without notice.
 ----------------------------------------------------------------------]]
 
-local MINOR_VERSION = tonumber( string.match( "$Revision$", "%d+" ) )
+local MINOR_VERSION = tonumber(string.match("$Revision$", "%d+"))
 
-local lib, oldminor = LibStub:NewLibrary( "PhanxConfig-OptionsPanel", MINOR_VERSION )
+local lib, oldminor = LibStub:NewLibrary("PhanxConfig-OptionsPanel", MINOR_VERSION)
 if not lib then return end
 
 lib.objects = lib.objects or {}
 
-local function OptionsPanel_OnShow( self )
+local function OptionsPanel_OnShow(self)
 	if InCombatLockdown() then return end
 
 	local target = self.parent or self.name
@@ -37,24 +37,24 @@ local function OptionsPanel_OnShow( self )
 	end
 end
 
-local function OptionsPanel_OnFirstShow( self )
-	if type( self.runOnce ) == "function" then
-		local success, err = pcall( self.runOnce, self )
+local function OptionsPanel_OnFirstShow(self)
+	if type(self.runOnce) == "function" then
+		local success, err = pcall(self.runOnce, self)
 		self.runOnce = nil
-		if not success then error( err ) end
+		if not success then error(err) end
 	end
 
-	if type( self.refresh ) == "function" then
-		self.refresh( self )
+	if type(self.refresh) == "function" then
+		self.refresh(self)
 	end
 
 	if self:IsShown() then
-		OptionsPanel_OnShow( self )
+		OptionsPanel_OnShow(self)
 	end
-	self:SetScript( "OnShow", OptionsPanel_OnShow )
+	self:SetScript("OnShow", OptionsPanel_OnShow)
 end
 
-local function OptionsPanel_OnClose( self )
+local function OptionsPanel_OnClose(self)
 	if InCombatLockdown() then return end
 
 	local target = self.parent or self.name
@@ -92,24 +92,27 @@ local widgetTypes = {
 	"Slider",
 }
 
-function lib:New( name, parent, construct, refresh )
+function lib:New(name, parent, construct, refresh)
 	local frame
-	if type( name ) == "table" and name.IsObjectType and name:IsObjectType( "Frame" ) then
+	if type(name) == "table" and name.IsObjectType and name:IsObjectType("Frame") then
 		frame = name
+		frame.shown = frame:IsShown()
+		frame:Hide()
 	else
-		assert( type( name ) == "string", "PhanxConfig-OptionsPanel: Name is not a string!" )
-		if type( parent ) ~= "string" then parent = nil end
-		frame = CreateFrame( "Frame", nil, InterfaceOptionsFramePanelContainer )
+		assert(type(name) == "string", "PhanxConfig-OptionsPanel: Name is not a string!")
+		if type(parent) ~= "string" then parent = nil end
+		frame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
+		frame:Hide()
 		frame.name = name
-		frame.name = parent
-		InterfaceOptions_AddCategory( frame, parent )
+		frame.parent = parent
+		InterfaceOptions_AddCategory(frame, parent)
 	end
 
-	if type( construct ) ~= "function" then construct = nil end
-	if type( refresh ) ~= "function" then refresh = nil end
+	if type(construct) ~= "function" then construct = nil end
+	if type(refresh) ~= "function" then refresh = nil end
 
-	for _, widget in pairs( widgetTypes ) do
-		local lib = LibStub( "PhanxConfig-"..widget, true )
+	for _, widget in pairs(widgetTypes) do
+		local lib = LibStub("PhanxConfig-"..widget, true)
 		if lib then
 			local method = "Create"..widget
 			frame[method] = lib[method]
@@ -122,24 +125,23 @@ function lib:New( name, parent, construct, refresh )
 
 	frame.runOnce = construct
 
-	local shown = frame:IsVisible()
-	frame:Hide()
-	frame:SetScript( "OnShow", OptionsPanel_OnFirstShow )
-	if shown then
+	frame:SetScript("OnShow", OptionsPanel_OnFirstShow)
+	if frame.shown then
+		frame.shown = nil
 		frame:Show()
 	end
 
-	tinsert( self.objects, frame )
+	tinsert(self.objects, frame)
 	return frame
 end
 
-function lib:GetOptionsPanel( name, parent )
+function lib:GetOptionsPanel(name, parent)
 	local panels = self.objects
 	for i = 1, #panels do
-		if panels[i].name == name and panels[i].parent = parent then
+		if panels[i].name == name and panels[i].parent == parent then
 			return panels[i]
 		end
 	end
 end
 
-function lib.CreateOptionsPanel( ... ) return lib:New( ... ) end
+function lib.CreateOptionsPanel(...) return lib:New(...) end
