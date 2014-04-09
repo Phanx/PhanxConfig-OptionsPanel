@@ -43,10 +43,10 @@ local function OptionsPanel_OnFirstShow(self)
 		self.refresh(self)
 	end
 
+	self:SetScript("OnShow", OptionsPanel_OnShow)
 	if self:IsShown() then
 		OptionsPanel_OnShow(self)
 	end
-	self:SetScript("OnShow", OptionsPanel_OnShow)
 end
 
 local function OptionsPanel_OnClose(self)
