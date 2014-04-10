@@ -86,8 +86,6 @@ function lib:New(name, parent, construct, refresh)
 	local frame
 	if type(name) == "table" and name.IsObjectType and name:IsObjectType("Frame") then
 		frame = name
-		frame.shown = frame:IsShown()
-		frame:Hide()
 	else
 		assert(type(name) == "string", "PhanxConfig-OptionsPanel: Name is not a string!")
 		if type(parent) ~= "string" then parent = nil end
@@ -115,10 +113,20 @@ function lib:New(name, parent, construct, refresh)
 
 	frame.runOnce = construct
 
-	frame:SetScript("OnShow", OptionsPanel_OnFirstShow)
-	if frame.shown then
-		frame.shown = nil
-		frame:Show()
+	if frame:IsShown() then
+		OptionsPanel_OnFirstShow(frame)
+	else
+		frame:SetScript("OnShow", OptionsPanel_OnFirstShow)
+	end
+
+	if InterfaceOptionsFrame:IsShown() and not InCombatLockdown() then
+		InterfaceAddOnsList_Update()
+		if parent then
+			local parentFrame = self:GetOptionsPanel(parent)
+			if parentFrame then
+				OptionsPanel_OnShow(parentFrame)
+			end
+		end
 	end
 
 	tinsert(self.objects, frame)
