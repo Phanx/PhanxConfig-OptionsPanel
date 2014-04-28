@@ -22,7 +22,7 @@ local function OptionsPanel_OnShow(self)
 		local button = _G["InterfaceOptionsFrameAddOnsButton"..i]
 		if not button then break end
 		local element = button.element
-		if element.name == target then
+		if element and element.name == target then
 			if element.hasChildren and element.collapsed then
 				_G["InterfaceOptionsFrameAddOnsButton"..i.."Toggle"]:Click()
 			end
